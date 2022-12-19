@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html dir="ltr">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta charset="UTF-8">
+        <title>Visual Math Editor</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+        <meta name="author" content="David GRIMA (contact@equatheque.com)" />
+        <link rel="copyright" href="information/tCOPYRIGHT.html" />
+
+        <!-- COPYRIGHT
+        VisualMathEditor, (VisualMathEditor.html) 
+        Copyright © 2005-2014 David Grima, contact@equatheque.com under the terms of the GNU General Public License, version 3.
+        This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+        This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+        You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses.
+        -->
+
+        <!-- DOC
+        Voir http://visualmatheditor.equatheque.net/site/documentation.html
+
+        Cet éditeur WYSIWYM (What You See Is What You Mean, ce que vous voyez est ce que vous voulez dire) met le paquet sur la sémantique tout en offrant un confort digne d’un éditeur WYSIWYG (What you see is what you get, ce que vous voyez est ce que vous obtenez), interface « intuitive » : l’utilisateur voit directement à l’écran à quoi ressemblera le résultat final.
+        -->
+
+        <!-- ATTENTION, sous IE9, 23 css font plantés MathJax sur return AJAX.Styles(this.config.styles,["InitializeHTML",this]); de jax.js -->
+        <!-- Easyui CSS -->
+        <link title="aguas" rel="stylesheet" type="text/css" href="js/jquery-easyui/themes/aguas/easyui.css"/>
+        <link title="aguas" rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/aguas/easyui.css" id="EasyuiCSS" />
+        <link title="gray" rel="stylesheet" type="text/css" href="js/jquery-easyui/themes/gray/easyui.css" disabled="true" />
+        <link title="gray" rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/gray/easyui.css" disabled="true" />
+        <link title="metro" rel="stylesheet" type="text/css" href="js/jquery-easyui/themes/metro/easyui.css" disabled="true" />
+        <link title="metro" rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/metro/easyui.css" disabled="true" />
+        <link title="bootstrap" rel="stylesheet" type="text/css" href="js/jquery-easyui/themes/bootstrap/easyui.css" disabled="true" />
+        <link title="bootstrap" rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/bootstrap/easyui.css" disabled="true" />
+        <link title="black" data-colorType="black" rel="stylesheet" type="text/css" href="js/jquery-easyui/themes/black/easyui.css" disabled="true" />
+        <link title="black" data-colorType="black" rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/black/easyui.css" disabled="true" />
+        <link rel="stylesheet" type="text/css" href="js/jquery-easyui/themes/icon.css" />
+        <link rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/icon.css" />
+        <link rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/rtl.css" id="RTLstyle" disabled="true" />
+        <!-- I do my own RTL style <link rel="stylesheet" type="text/css" href="js/jquery-easyui-MathEditorExtend/themes/easyui-rtl.css" id="RTLstyle" disabled="true" /> -->
+
+        <script type="text/javascript">
+        //<![CDATA[
+        /*jslint browser: true, evil: true */
+        /*
+        For jslint Options
+        -browser: true to assume there is an instance of the object window
+        -evil: true to allow document.write
+        */
+        (function () {
+            'use strict';
+
+            var runLocal = (window.location.search.indexOf("runLocal", 0) > 0),
+                runNotCodeMirror = (window.location.search.indexOf("runNotCodeMirror", 0) > 0),
+                runNotMathJax = (window.location.search.indexOf("runNotMathJax", 0) > 0),
+                runNotVirtualKeyboard = (window.location.search.indexOf("runNotVirtualKeyboard", 0) > 0),
+                runNotColorPicker = (window.location.search.indexOf("runNotColorPicker", 0) > 0),
+                runNotCanvg = (window.location.search.indexOf("runNotCanvg", 0) > 0),
+                runNotJsPDF = (window.location.search.indexOf("runNotJsPDF", 0) > 0),
+                vmeURL,
+                vmeRunParam;
+
+            /*jQuery Javascript*/
+            if (runLocal) {
+                document.write("<script type=\"text\/javascript\" src=\"js\/jquery-plugin\/jquery.min.js\"><\/script>");
+            } else {
+                document.write("<script type=\"text\/javascript\" src=\"https:\/\/ajax.googleapis.com\/ajax\/libs\/jquery\/1.8.0\/jquery.min.js\"><\/script>");
+                //document.write("<script type=\"text\/javascript\" src=\"https:\/\/ajax.googleapis.com\/ajax\/libs\/jquery\/1.9.0\/jquery.min.js\"><\/script>");
+                //document.write("<script type=\"text\/javascript\" src=\"http:\/\/code.jquery.com\/jquery-migrate-1.1.0.js\"><\/script>");
+            }
+
+            document.write("<script type=\"text\/javascript\" src=\"js\/jquery-plugin\/jquery.url.js\"><\/script>");
+
+            /*jQuery Easyui Javascript*/
+            document.write("<script type=\"text\/javascript\" src=\"js\/jquery-easyui\/jquery.easyui.min.js\"><\/script>");
+            //document.write("<script type=\"text\/javascript\" src=\"js\/jquery-easyui\/locale/easyui-lang-en.js\"><\/script>");
+            //document.write("<script type=\"text\/javascript\" src=\"js\/jquery-easyui-MathEditorExtend\/themes\/easyui-rtl.js\"><\/script>");    
+
+            /*jQuery Colorpicker Javascript*/
+            if (!runNotColorPicker) {
+                document.write("<link rel=\"stylesheet\" id=\"colorpickerCSSblack\" type=\"text\/css\" href=\"js\/jquery-colorpicker\/css\/colorpicker.css\" disabled=\"true\" >");
+                document.write("<link rel=\"stylesheet\" id=\"colorpickerCSSgray\" type=\"text\/css\" href=\"js\/jquery-colorpicker\/css\/colorpicker_gray.css\" disabled=\"true\" >");
+                document.write("<script type=\"text\/javascript\" src=\"js\/jquery-colorpicker\/js\/colorpicker.js\"><\/script>");
+            }
+
+            /*MathJax    Javascript */
+            if (!runNotMathJax) {
+                /*
+                console.log("protocol:"+window.location.protocol);
+                console.log("port:"+window.location.port);
+                console.log("host:"+window.location.host);
+                console.log("pathname:"+window.location.pathname);
+                */
+                vmeURL = window.location.protocol + "//" + window.location.host + window.location.pathname.substring(0, window.location.pathname.lastIndexOf("/") + 1);
+                if (runLocal) {
+                    document.write("<script type=\"text\/javascript\" id=\"MathJaxScript\" src=\"js\/mathjax\/MathJax.js?config=" + vmeURL + "js\/mathjax-MathEditorExtend\/x-mathjax-config.js\"><\/script>");
+                } else {
+                    document.write("<script type=\"text\/javascript\" id=\"MathJaxScript\" src=\"https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/mathjax\/2.7.1\/MathJax.js?config=" + vmeURL + "js\/mathjax-MathEditorExtend\/x-mathjax-config.js\"><\/script>");
+                }
+            }
+
+            /*Codemirror Javascript and css*/
+            if (!runNotCodeMirror) {
+                document.write("<link rel=\"stylesheet\" type=\"text\/css\" href=\"js\/codemirror\/lib\/codemirror.css\">");
+                document.write("<link rel=\"stylesheet\" type=\"text\/css\" href=\"js\/codemirror\/theme\/twilight.css\">");
+
+                document.write("<script src=\"js\/codemirror\/lib\/codemirror.js\"><\/script>");
+                /* for _unpacked codemirror ressources now in codemirror.js file
+                document.write("<script src=\"js\/codemirror\/addon\/selection\/active-line.js\"><\/script>");
+                document.write("<script src=\"js\/codemirror\/addon\/edit\/matchbrackets.js\"><\/script>");
+                document.write("<script src=\"js\/codemirror\/addon\/edit\/closebrackets.js\"><\/script>");
+                document.write("<script src=\"js\/codemirror\/addon/edit/closetag.js\"><\/script>");
+                document.write("<script src=\"js\/codemirror\/mode\/stex\/stex.js\"><\/script>");
+                document.write("<script src=\"js\/codemirror\/mode\/xml\/xml.js\"><\/script>");
+                */
+            }
+
+            /*VirtualKeyboard Javascript and css*/
+            if (!runNotVirtualKeyboard) {
+                document.write("<link rel=\"stylesheet\" type=\"text\/css\" href=\"js\/keyboard\/keyboard.css\">");
+                //document.write("<script type=\"text\/javascript\" src=\"js\/keyboard\/keyboard.js\" charset=\"UTF-8\"><\/script>");     //now call by initialiseVirtualKeyboard() function in VisualMathEditor.js file
+            }
+
+            /*Canvg Javascript*/
+            if (!runNotCanvg) {
+                if (runLocal) {
+                    document.write("<script type=\"text\/javascript\" src=\"js\/canvg\/rgbcolor.js\"><\/script>");
+                    document.write("<script type=\"text\/javascript\" src=\"js\/canvg\/StackBlur.js\"><\/script>");
+                    document.write("<script type=\"text\/javascript\" src=\"js\/canvg\/canvg.js\"><\/script>");
+                } else {
+                    document.write("<script type=\"text\/javascript\" src=\"https:\/\/cdn.jsdelivr.net\/canvg\/1.4.0\/rgbcolor.min.js\"><\/script>");
+                    document.write("<script type=\"text\/javascript\" src=\"https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/stackblur-canvas\/1.4.0\/stackblur.min.js\"><\/script>");
+                    document.write("<script type=\"text\/javascript\" src=\"https:\/\/cdn.jsdelivr.net\/canvg\/1.4.0\/canvg.min.js\"><\/script>");
+                }
+            }
+
+            /*jspdf Javascript*/
+            if (!runNotJsPDF) {
+                document.write("<script type=\"text\/javascript\" src=\"js\/jspdf\/jspdf.MrRio.js\"><\/script>");
+            }
+
+            /*VisualMathEditor Javascript*/
+            vmeRunParam = "";
+            if (runLocal) {
+                vmeRunParam += "runLocal=true";
+            }
+            if (runNotCodeMirror) {
+                if (vmeRunParam.length > 0) { vmeRunParam += "&"; }
+                vmeRunParam += "runNotCodeMirror=true";
+            }
+            if (runNotMathJax) {
+                if (vmeRunParam.length > 0) { vmeRunParam += "&"; }
+                vmeRunParam += "runNotMathJax=true";
+            }
+            if (runNotVirtualKeyboard) {
+                if (vmeRunParam.length > 0) { vmeRunParam += "&"; }
+                vmeRunParam += "runNotVirtualKeyboard=true";
+            }
+            if (runNotColorPicker) {
+                if (vmeRunParam.length > 0) { vmeRunParam += "&"; }
+                vmeRunParam += "runNotColorPicker=true";
+            }
+            if (runNotCanvg) {
+                if (vmeRunParam.length > 0) { vmeRunParam += "&"; }
+                vmeRunParam += "runNotCanvg=true";
+            }
+            if (runNotJsPDF) {
+                if (vmeRunParam.length > 0) { vmeRunParam += "&"; }
+                vmeRunParam += "runNotJsPDF=true";
+            }
+
+            if (vmeRunParam.length > 0) { vmeRunParam = "?" + vmeRunParam; }
+            document.write("<script type=\"text\/javascript\" id=\"vmeScript\" src=\"js\/VisualMathEditor.js" + vmeRunParam + "\"><\/script>");
+            /* for _unpacked i18n ressources now in VisualMathEditor.js file
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/fr_FR.js\"><\/script>");
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/en_US.js\"><\/script>");
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/ru.js\"><\/script>");
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/ar.js\"><\/script>");
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/vi_VN.js\"><\/script>");
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/es_ES.js\"><\/script>");
+            document.write("<script type=\"text\/javascript\" src=\"js\/i18n\/de_DE.js\"><\/script>");
+            */
+
+        }());
+        //]]>
+        </script>
+
+        <style>
+            .keyboardInputInitiator{display:none;}
+            .keyboardInput{height:0px;width:0px;border:none;background-color:transparent;color:transparent;}
+            table.bug {border:1px solid #FFCC00; background-color:#FFFFCC; width:100%; border-collapse:collapse;}
+            table.bug td {border:1px solid #FFCC00; padding:5px;"}
+        </style>
+    </head>
+    <body class="easyui-layout" id="bodyPage">
+        <div id="WaitMsg" style="margin:10px;padding:10px;height:3000px;background-color:#E7F0FF;border:1px dotted #95B8E7;border-top:1px solid #95B8E7; color:#0E2D5F;">
+          Editor is downloading...
+          <br/><br/>Thank you for your patience.
+          <br/><br/>If the editor is not loaded properly in one or two seconds, you can try to find the page by pressing the F5 key.
+        </div>
+
+        <!-- Easyui Body layout north/west/center/east/south -->
+        <div style="height:40px;" id="northRegion" data-options="region:'north',split:false">
+          <div style="padding:5px;" id="menu">
+              <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-file',menu:'#mFILE'"><span data-locate="FILE"></span></a>
+              <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-insert',menu:'#mINSERT'"><span data-locate="INSERT"></span></a>
+              <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-plugin',menu:'#mTOOLS'" ><span data-locate="TOOLS"></span></a>
+              <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-watch',menu:'#mVIEW'" ><span data-locate="VIEW"></span></a>
+              <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-option',menu:'#mOPTIONS'" ><span data-locate="OPTIONS"></span></a>
+              <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-info',menu:'#mINFORMATIONS'" ><span data-locate="INFORMATIONS"></span></a>
+          </div>
+
+          <div id="mFILE" style="width:200px;">
+              <div data-options="iconCls:'icon-new'" id="mNEW_EDITOR"><span class='rtl-menu-item' data-locate="NEW_EDITOR"></span></div>
+              <div data-options="iconCls:'icon-quit',disable:'true'" id="mQUIT_EDITOR"><span class='rtl-menu-item' data-locate="QUIT_EDITOR"></span></div>
+              <div class="menu-sep"></div>
+
+              <div data-options="iconCls:'icon-save'" id="mSAVE_EQUATION"><span class='rtl-menu-item' data-locate="SAVE_EQUATION"></span></div>
+              <a id="fSAVE_EQUATION" href="#" style="display:none">saveFile</a>
+              <iframe id="ieFrameForSaveContent" name="ieFrameForSaveContent" src="ieFrameForSaveContent.html" width="0" height="0" style="float:right; width:0; height:0; border:none; overflow:hidden;"></iframe>
+
+              <div data-options="iconCls:'icon-open'" id="mOPEN_EQUATION"><span class='rtl-menu-item' data-locate="OPEN_EQUATION"></span></div>
+              <input type="file" id="fOPEN_EQUATION" style="display:none" />
+
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-refresh'" id="mUPDATE_EQUATION"><span class='rtl-menu-item' data-locate="UPDATE_EQUATION"></span></div>
+              <div data-options="iconCls:'icon-set'" id="mSET_EQUATION"><span class='rtl-menu-item' data-locate="SET_EQUATION"></span></div>
+
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-svg-save'" id="mSAVE_AS_SVG"><span class='rtl-menu-item' data-locate="SAVE_AS_SVG"></span></div>
+              <div data-options="iconCls:'icon-mml-save'" id="mSAVE_AS_MML"><span class='rtl-menu-item' data-locate="SAVE_AS_MML"></span></div>
+              <div data-options="iconCls:'icon-pdf-save'" id="mSAVE_AS_PDF"><span class='rtl-menu-item' data-locate="SAVE_AS_PDF"></span></div>
+          </div>
+
+          <div id="mINSERT" class="easyui-menu" style="width:200px;"> <!-- This menu is also a contextmenu for the textarea #mathTextInput-->
+              <div data-options="iconCls:'icon-char'" id="mCHARS">
+                  <span class='rtl-menu-item' data-locate="CHAR"></span>
+                  <div style="width:200px;">
+                      <div data-options="iconCls:'icon-FR_CHAR'" id="f_FR_CHAR"><span class='rtl-menu-item' data-locate="FR_CHAR" data-information='FR_CHAR'></span></div>
+                      <div data-options="iconCls:'icon-BBB_CHAR'" id="f_BBB_CHAR"><span class='rtl-menu-item' data-locate="BBB_CHAR" data-information='BBB_CHAR'></span></div>
+                      <div data-options="iconCls:'icon-GREEK_CHAR'" id="f_GREEK_CHAR"><span class='rtl-menu-item' data-locate="L_U_GREEK_CHAR" data-information='L_U_GREEK_CHAR'></span></div>
+                      <div data-options="iconCls:'icon-char'" id="f_ALL_CHAR"><span class='rtl-menu-item' data-locate="CHAR" data-information='CHAR'></span></div>
+                      <!--div><span class='rtl-menu-item' data-locate="L_U_LATIN_CHAR" data-information='L_U_LATIN_CHAR'></span></div>
+                      <div><span class='rtl-menu-item' data-locate="B_L_U_LATIN_CHAR" data-information='B_L_U_LATIN_CHAR'></span></div>
+                      <div><span class='rtl-menu-item' data-locate="CC_CHAR" data-information='CC_CHAR'></span></div>
+                      <div><span class='rtl-menu-item' data-locate="SF_CHAR" data-information='SF_CHAR'></span></div>
+                      <div><span class='rtl-menu-item' data-locate="TT_CHAR" data-information='TT_CHAR'></span></div>
+                      <div><span class='rtl-menu-item' data-locate="L_GREEK_CHAR" data-information='L_GREEK_CHAR'></span></div-->
+                  </div>
+              </div>
+              <div id="mSPECIAL_CHARACTER" data-options="iconCls:'icon-special_char'"><span class='rtl-menu-item' data-locate="SPECIAL_CHARACTER" data-information='SPECIAL_CHARACTER'></span></div>
+              <div id="mHORIZONTAL_SPACING" data-options="iconCls:'icon-hspace'"><span class='rtl-menu-item' data-locate="HORIZONTAL_SPACING_SYMBOLS" data-information='HORIZONTAL_SPACING_SYMBOLS'></span></div>
+              <div id="mVERTICAL_SPACING" data-options="iconCls:'icon-vspace'"><span class='rtl-menu-item' data-locate="VERTICAL_SPACING_SYMBOLS" data-information='VERTICAL_SPACING_SYMBOLS'></span></div>
+              <div class="menu-sep"></div>
+              <div id="mMATRIX" data-options="iconCls:'icon-matrix'"><span class='rtl-menu-item' data-locate="MATRIX" data-information='MATRIX'></span></div>
+              <div class="menu-sep"></div>
+              <div id="mCHEMICAL_FORMULAE" data-options="iconCls:'icon-chemical'"><span class='rtl-menu-item' data-locate="CHEMICAL_FORMULAE" data-information='CHEMICAL_FORMULAE'></span></div>
+              <div id="mCOMMUTATIVE_DIAGRAM" data-options="iconCls:'icon-diagram'"><span class='rtl-menu-item' data-locate="COMMUTATIVE_DIAGRAM" data-information='COMMUTATIVE_DIAGRAM'></span></div>
+              <div id="mEQUATION" data-options="iconCls:'icon-equation'"><span class='rtl-menu-item' data-locate="EQUATION" data-information='EQUATION'></span></div>
+              <!--div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-isotope'"><span class='rtl-menu-item' data-locate="ISOTOPES_TABLE" data-information='ISOTOPES_TABLE'></span></div-->
+              <div class="menu-sep"></div>
+              <div id="mLaTeX_TEXT"><span class='rtl-menu-item' style="padding-top:5px;font-size:120%">$\LaTeX$</span></div>
+          </div>
+
+          <div id="mTOOLS" style="width:200px;">
+              <div data-options="iconCls:'icon-html_off'" id="mHTML_MODE"><span class='rtl-menu-item' data-locate="HTML_MODE"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-keyboard'" id="mKEYBOARD"><span class='rtl-menu-item' data-locate="KEYBOARD"></span></div>
+          </div>
+
+          <div id="mVIEW" style="width:200px;">
+              <div data-options="iconCls:'icon-png'" id="mPNG_IMG"><span class='rtl-menu-item' data-locate="EXPORT_PNG_IMG"></span></div>
+              <div data-options="iconCls:'icon-svg'" id="mSVG"><span class='rtl-menu-item' data-locate="SVG"></span></div>
+              <div data-options="iconCls:'icon-mml'" id="mMATH_ML"><span class='rtl-menu-item' data-locate="MATH_ML"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-codes'" id="mUNICODES_LIST"><span class='rtl-menu-item' data-locate="UNICODES_LIST"></span></div>
+              <div data-options="iconCls:'icon-symbols'" id="mLATEX_CODES_LIST"><span class='rtl-menu-item' data-locate="LATEX_CODES_LIST"></span></div>
+              <div data-options="iconCls:'icon-symbols'" id="mASCIIMATH_CODES_LIST"><span class='rtl-menu-item' data-locate="ASCIIMATH_CODES_LIST"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-langressource'" id="mLANG_RESSOURCE_LIST"><span class='rtl-menu-item' data-locate="LANGUAGE_LIST"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-doclatex'" id="mLATEX_DOCUMENTATION"><span class='rtl-menu-item' data-locate="LATEX_DOCUMENTATION"></span></div>
+              <div data-options="iconCls:'icon-doclatex'" id="mMHCHEM_DOCUMENTATION"><span class='rtl-menu-item' data-locate="MHCHEM_DOCUMENTATION"></span></div>
+              <div data-options="iconCls:'icon-doclatex'" id="mAMSCD_DOCUMENTATION"><span class='rtl-menu-item' data-locate="AMSCD_DOCUMENTATION"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-docsvg'" id="mSVG_SPECIFICATIONS"><span class='rtl-menu-item' data-locate="SVG_SPECIFICATIONS"></span></div>
+              <div data-options="iconCls:'icon-docmml'" id="mMATH_ML_SPECIFICATIONS"><span class='rtl-menu-item' data-locate="MATH_ML_SPECIFICATIONS"></span></div>
+          </div>
+
+          <div id="mCONVERT" class="easyui-menu" style="width:200px;">
+              <div data-options="iconCls:'icon-png'" id="mPNG_IMG_CONVERT">
+                  <span class='rtl-menu-item' data-locate="EXPORT_PNG_IMG"></span>
+                  <div>
+                      <div data-options="iconCls:'icon-zoom-out'" id="mPNG_IMG_CONVERT_x05" data-zoom="0.5">50%</div>
+                      <div id="mPNG_IMG_CONVERT_x1" data-zoom="1">100%</div>
+                      <div data-options="iconCls:'icon-zoom-in'" id="mPNG_IMG_CONVERT_x2" data-zoom="2">200%</div>
+                      <div id="mPNG_IMG_CONVERT_x3" data-zoom="3">300%</div>
+                      <div id="mPNG_IMG_CONVERT_x4" data-zoom="4">400%</div>
+                  </div>
+              </div>
+              <div data-options="iconCls:'icon-svg'" id="mSVG_CONVERT"><span class='rtl-menu-item' data-locate="SVG"></span></div>
+          </div>
+
+          <div id="mOPTIONS" style="width:200px;">
+              <div data-options="iconCls:'icon-edit'" id="mEDITOR_PARAMETERS"><span class='rtl-menu-item' data-locate="EDITOR_PARAMETERS"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-style'" id="mSTYLE_CHOISE"><span class='rtl-menu-item' data-locate="STYLE_CHOISE"></span></div>
+              <div data-options="iconCls:'icon-language'" id="mLANGUAGE_CHOISE"><span class='rtl-menu-item' data-locate="LANGUAGE_CHOISE"></span></div>
+          </div>
+
+          <div id="mINFORMATIONS" style="width:200px;">
+              <!--div data-options="iconCls:'icon-credit'" id="mTHANKS"><span class='rtl-menu-item' data-locate="THANKS"></span></div-->
+              <!--div class="menu-sep"></div-->
+              <div data-options="iconCls:'icon-copyright'" id="mCOPYRIGHT"><span class='rtl-menu-item' data-locate="COPYRIGHT"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-history'" id="mVERSION"><span class='rtl-menu-item' data-locate="VERSION"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-bugs'" id="mBUGS"><span class='rtl-menu-item' data-locate="BUGS"></span></div>
+              <div class="menu-sep"></div>
+              <div data-options="iconCls:'icon-equation'" id="mEQUATION_SAMPLE"><span class='rtl-menu-item' data-locate="EQUATION_SAMPLE"></span></div>
+          </div>
+        </div>
+
+        <div data-options="region:'west',split:false" title="&lt;span data-locate='FORMULA' class='rtl-title-withicon'>&lt;/span>&nbsp;" style="width:210px;" id="westRegion">
+          <div class="easyui-accordion" id="f_SYMBOLS" data-options="border:false">
+              <div data-options="collapsed:true" title="&lt;span data-information='OPERATOR_SYMBOLS' class='rtl-title-withicon'>$\pm$ &nbsp;&nbsp; $\times$  &nbsp;&nbsp; $\div$&lt;/span>" style="overflow:auto" id="f_OPERATOR_SYMBOLS"></div>
+              <div title="&lt;span data-information='RELATION_SYMBOLS' class='rtl-title-withicon'>$\leq$ &nbsp;&nbsp; $\cong$ &nbsp;&nbsp; $\approx$&lt;/span>" style="overflow:auto;" id="f_RELATION_SYMBOLS"></div>
+              <div title="&lt;span data-information='GROUP_LOGICAL_SYMBOLS' class='rtl-title-withicon'>$\infty$ &nbsp;&nbsp; $\subseteq$ &nbsp;&nbsp; $\in$&lt;/span>" style="overflow:auto;" id="f_GROUP_LOGICAL_SYMBOLS"></div>
+              <div title="&lt;span data-information='LOGICAL_SYMBOLS' class='rtl-title-withicon'>$\prec$ &nbsp;&nbsp; $\asymp$ &nbsp;&nbsp; $\measuredangle$&lt;/span>" style="overflow:auto;" id="f_LOGICAL_SYMBOLS"></div>
+              <div title="&lt;span data-information='ARROW_SYMBOLS' class='rtl-title-withicon'>$\Rightarrow$ &nbsp;&nbsp; $\circlearrowleft$ &nbsp;&nbsp; $\looparrowright$&lt;/span>" style="overflow:auto;" id="f_ARROW_SYMBOLS"></div>
+              <div title="&lt;span data-information='ARROW_RELATION_SYMBOLS' class='rtl-title-withicon'>$A \xrightleftharpoons{} B \xleftrightarrow{} C$&lt;/span>" style="overflow:auto;" id="f_ARROW_RELATION_SYMBOLS"></div>
+              <div title="&lt;span data-information='MATH_PHYSIC_SYMBOLS' class='rtl-title-withicon'>$\hbar$ &nbsp;&nbsp; $\mho$ &nbsp;&nbsp; $\backepsilon$&lt;/span>" style="overflow:auto;" id="f_MATH_PHYSIC_SYMBOLS"></div>
+              <div title="&lt;span data-information='L_U_GREEK_CHAR' class='rtl-title-withicon'>$\varepsilon$ &nbsp;&nbsp; $\pi$  &nbsp;&nbsp; $\Psi$ &lt;/span>" style="overflow:auto;" id="f_L_U_GREEK_CHAR"></div>
+              <!--div title="&lt;span data-information='GROUP_SYMBOLS' class='rtl-title-withicon'>GROUP_SYMBOLS &lt;/span>" style="overflow:auto;" id="f_GROUP_SYMBOLS"></div-->
+          </div>
+        </div>
+        <div data-options="region:'center'" title="&lt;span data-locate='EDITION'>&lt;/span>&nbsp;&lt;input type='text' value='' class='keyboardInput' id='tKEYBOARD' />" style="overflow:hidden" id="divEquationInputOutput">
+            <div id="HTML_TAG" style="display:none; overflow:hidden;">
+              <a href="#" title="Latex" class="easyui-linkbutton easyui-tooltip" id="btHTML_Latex"><strong>$</strong></a>
+              <a href="#" title="AsciiMath" class="easyui-linkbutton easyui-tooltip" id="btHTML_AsciiMath"><strong>`</strong></a>
+              |
+              <a href="#" title="span color" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_color'" id="btHTML_TEXTCOLOR"></a>
+              <a href="#" title="span background-color" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-fore_color'" id="btHTML_FORECOLOR"></a>
+              |
+              <a href="#" title="h1" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_heading_1'" id="btHTML_H1"></a>
+              <a href="#" title="h2" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_heading_2'" id="btHTML_H2"></a>
+              <a href="#" title="h3" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_heading_3'" id="btHTML_H3"></a>
+              |
+              <a href="#" title="strong" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_bold'" id="btHTML_STRONG"></a>
+              <a href="#" title="em" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_italic'" id="btHTML_EM"></a>
+              <a href="#" title="s" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_strikethrough'" id="btHTML_S"></a>
+              <a href="#" title="u" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_underline'" id="btHTML_U"></a>
+              |
+              <a href="#" title="br" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-break_line'" id="btHTML_BR"></a>
+              <a href="#" title="p" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_paragraph'" id="btHTML_P"></a>
+              <a href="#" title="hr" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_horizontalrule'" id="btHTML_HR"></a>
+              <a href="#" title="p margin-left" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_indent'" id="btHTML_INDENT"></a>
+              |
+              <a href="#" title="p left" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_align_left'" id="btHTML_LEFT"></a>
+              <a href="#" title="p center" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_align_center'" id="btHTML_CENTER"></a>
+              <a href="#" title="p right" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_align_right'" id="btHTML_RIGHT"></a>
+              <a href="#" title="p justify" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_align_justify'" id="btHTML_JUSTIFY"></a>
+              |
+              <a href="#" title="ul" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_list_bullets'" id="btHTML_UL"></a>
+              <a href="#" title="ol" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-text_list_numbers'" id="btHTML_OL"></a>
+              |
+              <a href="#" title="a" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-link'" id="btHTML_A"></a>
+              <a href="#" title="img" class="easyui-linkbutton easyui-tooltip" data-options="iconCls:'icon-picture'" id="btHTML_IMG"></a>
+          </div>
+          <div style="margin:0;padding:0;height:50%;overflow:hidden;" id="divMathTextInput">
+              <form action="#" method="post" style="margin:0;padding:0;height:100%;" id="formMathTextInput">
+                  <fieldset style="height:100%;">
+                      <textarea id="mathTextInput" name="equation" style="margin:0;padding:5px;border:none;" rows="30" cols="30" dir="ltr" ></textarea><!-- Force ltr dir  for Ascii and Latex even if arabic langage-->
+                  </fieldset>
+              </form>
+          </div>
+          <div id="mathVisualOutput" style="margin:0;padding:5px;height:50%;font-size:250%;overflow:auto"></div>
+        </div>
+
+        <div data-options="region:'east',split:false" title="&lt;span data-locate='FORMULA' class='rtl-title-withicon'>&lt;/span>&nbsp;" style="width:210px;" id="eastRegion">
+          <div class="easyui-accordion" id="f_SYMBOLS2" data-options="border:false">
+              <div title="&lt;span data-information='SUB_SUP_SYMBOLS' class='rtl-title-withicon'>$\vec{a}$ &nbsp;&nbsp; $x_b$ &nbsp;&nbsp; $\dot{y}$ &lt;/span>" style="overflow:auto;" id="f_SUB_SUP_SYMBOLS"></div>
+              <div title="&lt;span data-information='SQRT_FRAC_SYMBOLS' class='rtl-title-withicon'>$a/b$ &nbsp;&nbsp; $\sqrt{a}$ &lt;/span>" style="overflow:auto;" id="f_SQRT_FRAC_SYMBOLS"></div>
+              <div title="&lt;span data-information='DIFFERENTIAL_SYMBOLS' class='rtl-title-withicon'>$\partial$ &nbsp;&nbsp; $\nabla a$ &nbsp;&nbsp; $dx$ &lt;/span>" style="overflow:auto;" id="f_DIFFERENTIAL_SYMBOLS"></div>
+              <div title="&lt;span data-information='INTEGRAL_SYMBOLS' class='rtl-title-withicon' style='font-size:60%;'>$\int$ &nbsp;&nbsp; $\oint$&lt;/span>" style="overflow:auto;" id="f_INTEGRAL_SYMBOLS"></div>
+              <div title="&lt;span data-information='SUM_PROD_SYMBOLS' class='rtl-title-withicon' style='font-size:70%;'>$\sum$ &nbsp;&nbsp; $\prod$ &lt;/span>" style="overflow:auto;" id="f_SUM_PROD_SYMBOLS"></div>
+              <div title="&lt;span data-information='MATRIX_SYMBOLS' class='rtl-title-withicon'>&lt;img class='symbol_btn icon-matrix_13_black' src='js/jquery-easyui/themes/aguas/images/blank.gif' width='15' height='20' />  &nbsp;&nbsp; &lt;img class='symbol_btn icon-matrix_33_black' src='js/jquery-easyui/themes/aguas/images/blank.gif' width='15' height='20' />&lt;/span>" style="overflow:auto;" id="f_MATRIX_SYMBOLS"></div>
+              <div title="&lt;span data-information='BRACKET_SYMBOLS' class='rtl-title-withicon'>$(\ )$ &nbsp;&nbsp; $[\ \ ]$ &nbsp;&nbsp; $\|\ \|$ &lt;/span>" style="overflow:auto;" id="f_BRACKET_SYMBOLS"></div>
+              <div title="&lt;span data-information='FONCTION_SYMBOLS' class='rtl-title-withicon'>$\ln$ &nbsp;&nbsp; $\cos$ &nbsp;&nbsp; $\lim$ &lt;/span>" style="overflow:auto;" id="f_FONCTION_SYMBOLS"></div>
+          </div>
+        </div>
+
+        <div data-options="region:'south',split:false" style="height:40px;" id="southRegion">
+          <div id="divInformation" style="padding-top:2px; text-align:center; height:18px; overflow:hidden" >&nbsp;</div>
+          <div style="padding-top:2px; text-align:center;">
+              <span data-locate="AUTHOR"></span>
+          </div>
+        </div>
+
+        <!-- Easyui DialogBox EXPORT_PNG-->
+        <div style="background: transparent url(js/jquery-easyui-MathEditorExtend/themes/grid.png) repeat left top;" class="easyui-dialog" data-options="width:240,height:200,closed:true,resizable:true,modal:true/*,buttons:'#btEXPORT_PNG',iconCls:'icon-png'*/" id="wEXPORT_PNG" title="&nbsp;"> <!--title="<span data-locate='TITLE_PNG' class='rtl-title-withicon' id='wEXPORT_PNG_TITLE'></span>-->
+          <canvas id="canvasEXPORT_PNG" width="100" height="100" style="width:100px;height:100px"></canvas>
+          <div id="btEXPORT_PNG" style="/*overflow:hidden;height:25px;padding:0;*/">
+              <a href="#" id="btDIRECT_EXPORT_PNG_EXPORT" class="easyui-linkbutton" data-options="iconCls:'icon-disk'" style="margin:0;"></a> 
+              <a href="#" id="btEXPORT_PNG_EXPORT" class="easyui-linkbutton" data-options="iconCls:'icon-img-save'" style="margin:0;"></a> 
+              <a href="#" id="btZOOM_IN_PNG_EXPORT" class="easyui-linkbutton" data-options="iconCls:'icon-zoom-in'" style="margin:0;"></a> 
+              <a href="#" id="btZOOM_OUT_PNG_EXPORT" class="easyui-linkbutton" data-options="iconCls:'icon-zoom-out'" style="margin:0;"></a> 
+          </div>
+          <span id='divEXPORT_SIZE' ></span>
+        </div>
+        <div id="helpResizeEXPORT_PNG" style="z-index:999999;display:none;position:absolute;top:0;left:0;width:190px;height:32px;padding-left:2px;padding-right:30px;box-shadow: 1px 1px 6px #ccc;border-radius: 5px 30px 5px 5px;border:1px solid #ccc;color:#656565;background-color:#fffbbb;text-align:left;font-size:12px;"><span data-locate='RESIZE_PNG'></span></div>
+        <div id="helpSaveEXPORT_PNG" style="z-index:999999;display:none;position:absolute;top:0;left:0;width:190px;height:32px;padding-left:30px;padding-right:2px;box-shadow: 1px 1px 6px #ccc;border-radius: 5px 5px 5px 30px;border:1px solid #ccc;color:#656565;background-color:#fffbbb;text-align:left;font-size:12px;"><span data-locate='SHOW_PNG'></span></div>
+
+        <!-- Easyui DialogBox EDITOR_PARAMETERS -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-option',closed:true,modal:true,buttons:'#btEDITOR_PARAMETERS'" id="wEDITOR_PARAMETERS" title="&lt;span data-locate='EDITOR_PARAMETERS' class='rtl-title-withicon'>&lt;/span>" style="width:420px;height:470px;">
+          <form id="formEDITOR_PARAMETERS" action="#" method="post">
+              <fieldset>
+                  <legend><span data-locate='SYNTAX'></span></legend>
+                  <input type="radio" name="codeType" id="AsciiMath_codeType" value="AsciiMath" /> <label for="AsciiMath_codeType">AsciiMath</label>
+                  <input type="radio" name="codeType" id="Latex_codeType" value="Latex" /> <label for="Latex_codeType">Latex</label>
+                  <br /><input type="checkbox" name="encloseType" id="encloseType" /> <label for="encloseType"><span data-locate='ENCLOSE_ALL_FORMULAS'></span></label>
+              </fieldset>
+              <hr/>
+              <fieldset>
+                  <legend><span data-locate='UPDATE'></span></legend>
+                  <input type="checkbox" name="menuupdateType" id="menuupdateType" /> <label for="menuupdateType"><span data-locate='MENU_UPDATE'></span></label>
+                  <br /><input type="checkbox" name="autoupdateType" id="autoupdateType" /> <label for="autoupdateType"><span data-locate='AUTO_UPDATE'></span></label>
+                  <br /><input type="text" name="autoUpdateTime" id="autoUpdateTime" size="4" maxlength="4" style="margin-left:4px;font-size:90%"/> <label for="autoUpdateTime"><span data-locate='UPDATE_INTERVAL'></span></label>
+              </fieldset>
+              <hr/>
+              <fieldset>
+                  <legend><span data-locate='CONVERT_PNG'></span></legend>
+                  <input type="text" name="pngImgGlyphStrokeColor" id="pngImgGlyphStrokeColor" size="7" maxlength="7" style="margin-left:4px;font-size:90%"/> <label for="pngImgGlyphStrokeColor"><span id="pngImgGlyphStrokeColorView">&nbsp;&nbsp;</span>&nbsp;<span data-locate='STROKE_PNG'></span></label>
+                  <br /><input type="text" name="pngImgGlyphFillColor" id="pngImgGlyphFillColor" size="7" maxlength="7" style="margin-left:4px;font-size:90%"/> <label for="pngImgGlyphFillColor"><span id="pngImgGlyphFillColorView">&nbsp;&nbsp;</span>&nbsp;<span data-locate='FILL_PNG'></span></label>
+                  <br /><input type="text" name="pngImgBackgroundStrokeColor" id="pngImgBackgroundStrokeColor" size="7" maxlength="7" style="margin-left:4px;font-size:90%"/> <label for="pngImgBackgroundStrokeColor"><span id="pngImgBackgroundStrokeColorView">&nbsp;&nbsp;</span>&nbsp;<span data-locate='BACKGROUND_STROKE_PNG'></span></label>
+                  <br /><input type="text" name="pngImgBackgroundFillColor" id="pngImgBackgroundFillColor" size="7" maxlength="7" style="margin-left:4px;font-size:90%"/> <label for="pngImgBackgroundFillColor"><span id="pngImgBackgroundFillColorView">&nbsp;&nbsp;</span>&nbsp;<span data-locate='BACKGROUND_FILL_PNG'></span></label>
+              </fieldset>
+              <hr/>
+              <fieldset>
+                  <legend>MathJax</legend>
+                  <input type="checkbox" name="menuMathjaxType" id="menuMathjaxType" /> <label for="menuMathjaxType"><span data-locate='MATHJAX_MENU'></span></label>
+                  <br/><input type="checkbox" name="fontInheritMathjaxType" id="fontInheritMathjaxType" /> <label for="fontInheritMathjaxType"><span data-locate='MATHJAX_FONTINHERIT'></span></label>
+              </fieldset>
+              <hr/>
+              <fieldset>
+                  <input type="checkbox" name="cookieType" id="cookieType" /> <label for="cookieType"><span data-locate='COOKIE_SAVE'></span></label>
+              </fieldset>
+          </form>
+          <div id="btEDITOR_PARAMETERS">
+              <a href="#" id="btEDITOR_PARAMETERS_CLOSE" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"><span data-locate="CLOSE"></span></a> 
+          </div>
+        </div>
+
+        <!-- Easyui DialogBox LANGUAGE_CHOISE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-language',closed:true,modal:true,buttons:'#btLANGUAGE_CHOISE'" id="wLANGUAGE_CHOISE" title="&lt;span data-locate='LANGUAGE_CHOISE' class='rtl-title-withicon'>&lt;/span>" style="width:270px;height:230px;">
+          <form id="formLANGUAGE_CHOISE" action="#" method="post">
+          </form>
+          <div id="btLANGUAGE_CHOISE">
+              <a href="#" id="btLANGUAGE_CHOISE_CLOSE" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"><span data-locate="CLOSE"></span></a> 
+          </div>
+        </div>
+
+        <!-- Easyui DialogBox STYLE_CHOISE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-style',closed:true,modal:true,buttons:'#btSTYLE_CHOISE'" id="wSTYLE_CHOISE" title="&lt;span data-locate='STYLE_CHOISE' class='rtl-title-withicon'>&lt;/span>" style="width:250px;height:200px;">
+          <form id="formSTYLE_CHOISE" action="#" method="post">
+              <fieldset dir='ltr'>
+                  <input type="radio" name="style" id="aguas_style" value="aguas" /> <label for="aguas_style">&laquo; Aguas &raquo;</label>
+                  <br /><input type="radio" name="style" id="gray_style" value="gray" /> <label for="gray_style">&laquo; Gray &raquo;</label>
+                  <br /><input type="radio" name="style" id="black_style" value="black" /> <label for="black_style">&laquo; Black &raquo;</label>
+                  <br /><input type="radio" name="style" id="bootstrap_style" value="bootstrap" /> <label for="bootstrap_style">&laquo; Bootstrap &raquo;</label>
+                  <br /><input type="radio" name="style" id="metro_style" value="metro" /> <label for="metro_style">&laquo; Metro &raquo;</label>
+              </fieldset>
+          </form>
+          <div id="btSTYLE_CHOISE">
+              <a href="#" id="btSTYLE_CHOISE_CLOSE" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"><span data-locate="CLOSE"></span></a> 
+          </div>
+        </div>
+
+        <!-- Easyui DialogBox MATRIX -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-matrix',closed:true,modal:true,buttons:'#btMATRIX'" id="wMATRIX" title="&lt;span data-locate='MATRIX' class='rtl-title-withicon'>&lt;/span>" style="width:310px;height:200px;">
+          <form id="formMATRIX" name="formMATRIX" action="#" method="post">
+              <table style="border-spacing:0px; border-collapse:collapse;" id="tableMATRIX" dir="ltr">
+                  <tr>
+                      <td colspan="2">&nbsp;</td>
+                      <td style="text-align:center"><input type="text" name="colsMATRIX" id="colsMATRIX" size="1" maxlength="2" value="3"/></td>
+                      <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                      <td><input type="text" name="rowsMATRIX" id="rowsMATRIX" size="1" maxlength="2" value="3"/></td>
+                      <td>
+                          <select name="leftbracketMATRIX">
+                              <option value="(" selected="selected">(</option>
+                              <option value="[">[</option>
+                              <option value="{">{</option>
+                              <option value="(:">&lt;</option>
+                              <option value="|">|</option>
+                              <option value="||">||</option>
+                              <option value="{:">&nbsp;</option>
+                              <option value=")">)</option>
+                              <option value="]">]</option>
+                              <option value="}">}</option>
+                              <option value=":)">&gt;</option>
+                          </select>
+                      </td>
+                      <td style="text-align:center"><div id="showMATRIX"></div></td>
+                      <td>
+                          <select name="rightbracketMATRIX">
+                              <option value=")" selected="selected">)</option>
+                              <option value="]">]</option>
+                              <option value="}">}</option>
+                              <option value=":)">&gt;</option>
+                              <option value="|">|</option>
+                              <option value="||">||</option>
+                              <option value=":}">&nbsp;</option>
+                              <option value="(">(</option>
+                              <option value="[">[</option>
+                              <option value="{">{</option>
+                              <option value="(:">&lt;</option>
+                          </select>
+                      </td>
+                  </tr>
+              </table>
+          </form>
+          <div id="btMATRIX">
+              <a href="#" id="btMATRIX_SET" class="easyui-linkbutton" data-options="iconCls:'icon-ok'"><span data-locate="SET_IN_EDITOR"></span></a> 
+              <a href="#" id="btMATRIX_CLOSE" class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"><span data-locate="CLOSE"></span></a>
+          </div>
+        </div>
+
+        <!-- Easyui DialogBox COMMUTATIVE_DIAGRAM_MORE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-diagram',closed:true,modal:false,shadow:false,resizable:true,collapsible:true,left:410,top:80" id="wf_COMMUTATIVE_DIAGRAM_MORE" title="&lt;span id='wf_COMMUTATIVE_DIAGRAM_MORE_TITLE' data-locate='COMMUTATIVE_DIAGRAM' class='rtl-title-withicon'>&lt;/span>" style="width:260px;height:320px;">
+        </div>
+
+        <!-- Easyui DialogBox CHEMICAL_FORMULAE_MORE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-chemical',closed:true,modal:false,shadow:false,left:410,top:80,resizable:true,collapsible:true" id="wf_CHEMICAL_FORMULAE_MORE" title="&lt;span id='wf_CHEMICAL_FORMULAE_MORE_TITLE' data-locate='CHEMICAL_FORMULAE' class='rtl-title-withicon'>&lt;/span>" style="width:230px;height:150px;">
+        </div>
+
+        <!-- Easyui DialogBox BRACKET_SYMBOLS_MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:410,top:36,resizable:true,collapsible:true" id="wf_BRACKET_SYMBOLS_MORE" title="&lt;span id='wf_BRACKET_SYMBOLS_MORE_TITLE' class='rtl-title-withicon'>$(\ )$ &nbsp;&nbsp; $[\ \ ]$ &nbsp;&nbsp; $\|\ \|$&lt;/span>" style="width:250px;height:440px;">
+        </div>
+
+        <!-- Easyui DialogBox RELATION_SYMBOLS_MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:460,top:80,resizable:true,collapsible:true" id="wf_RELATION_SYMBOLS_MORE" title="&lt;span id='wf_RELATION_SYMBOLS_MORE_TITLE' class='rtl-title-withicon'>$\leq$ &nbsp;&nbsp; $\cong$ &nbsp;&nbsp; $\approx$&lt;/span>" style="width:240px;height:320px;">
+        </div>
+
+        <!-- Easyui DialogBox ARROW_SYMBOLS _MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:510,top:124,resizable:true,collapsible:true" id="wf_ARROW_SYMBOLS_MORE" title="&lt;span id='wf_ARROW_SYMBOLS_MORE_TITLE' class='rtl-title-withicon'>$\Rightarrow$ &nbsp;&nbsp; $\circlearrowleft$ &nbsp;&nbsp; $\looparrowright$&lt;/span>" style="width:240px;height:360px;">
+        </div>
+
+        <!-- Easyui DialogBox FR_CHAR_MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:410,top:2,resizable:true,collapsible:true" id="wf_FR_CHAR_MORE" title="&lt;span id='wf_FR_CHAR_MORE_TITLE' class='rtl-title-withicon'>$\mathfrak{A}$ &nbsp;&nbsp; $\mathfrak{B}$ &nbsp;&nbsp; $\mathfrak{C}$&lt;/span>" style="width:240px;height:340px;">
+        </div>
+
+        <!-- Easyui DialogBox BBB_CHAR_MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:460,top:2,resizable:true,collapsible:true" id="wf_BBB_CHAR_MORE" title="&lt;span id='wf_BBB_CHAR_MORE_TITLE' class='rtl-title-withicon'>$\mathbb{A}$ &nbsp;&nbsp; $\mathbb{B}$ &nbsp;&nbsp; $\mathbb{C}$&lt;/span>" style="width:240px;height:340px;">
+        </div>
+
+        <!-- Easyui DialogBox f_L_U_GREEK_CHAR_MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:510,top:2,resizable:true,collapsible:true" id="wf_L_U_GREEK_CHAR_MORE" title="&lt;span id='wf_L_U_GREEK_CHAR_MORE_TITLE' class='rtl-title-withicon'>$\varepsilon$ &nbsp;&nbsp; $\pi$ &nbsp;&nbsp; $\Psi$&lt;/span>" style="width:240px;height:470px;">
+        </div>
+
+        <!-- Easyui DialogBox ALL_CHAR_MORE -->
+        <div class="easyui-dialog" data-options="closed:true,modal:false,shadow:false,left:120,top:80,resizable:true,collapsible:true" id="wf_ALL_CHAR_MORE" title="&lt;span id='wf_ALL_CHAR_MORE_TITLE' class='rtl-title-withicon'>A B C&lt;/span>" style="width:540px;height:340px;">
+        </div>
+
+        <!-- Easyui DialogBox EQUATION_MORE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-equation',closed:true,modal:false,shadow:false,left:410,top:80,resizable:true,collapsible:true" id="wf_EQUATION_MORE" title="&lt;span id='wf_EQUATION_MORE_TITLE' data-locate='EQUATION' class='rtl-title-withicon'>&lt;/span>" style="width:500px;height:320px;">
+        </div>
+
+        <!-- Easyui DialogBox HORIZONTAL_SPACING_MORE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-hspace',closed:true,modal:false,shadow:false,left:410,top:80,resizable:true,collapsible:true" id="wf_HORIZONTAL_SPACING_MORE" title="&nbsp;" style="width:110px;height:290px;">
+        </div>
+
+        <!-- Easyui DialogBox VERTICAL_SPACING_MORE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-vspace',closed:true,modal:false,shadow:false,left:410,top:80,resizable:true,collapsible:true" id="wf_VERTICAL_SPACING_MORE" title="&nbsp;" style="width:210px;height:120px;">
+        </div>
+
+        <!-- Easyui DialogBox SPECIAL_CHARACTER_MORE -->
+        <div class="easyui-dialog" data-options="iconCls:'icon-special_char',closed:true,modal:false,shadow:false,left:410,top:80,resizable:true,collapsible:true" id="wf_SPECIAL_CHARACTER_MORE" title="&nbsp;" style="width:65px;height:270px;">
+        </div>
+
+        <!-- Easyui Windows LATEX_CODES_LIST-->
+        <div class="easyui-window" id="wLATEX_CODES_LIST" title="&lt;span data-locate='LATEX_CODES_LIST' class='rtl-title-withicon'>&lt;/span>" style="height:450px;width:240px" data-options="iconCls:'icon-symbols',closed:true,modal:false,collapsible:false,minimizable:false,maximizable:false,closable:true">
+          <div id="cLATEX_CODES_LIST"></div>
+        </div>
+
+        <!-- Easyui Windows ASCIIMATH_CODES_LIST-->
+        <div class="easyui-window" id="wASCIIMATH_CODES_LIST" title="&lt;span data-locate='ASCIIMATH_CODES_LIST' class='rtl-title-withicon'>&lt;/span>" style="height:450px;width:330px" data-options="iconCls:'icon-symbols',closed:true,modal:false,collapsible:false,minimizable:false,maximizable:false,closable:true">
+          <div id="cASCIIMATH_CODES_LIST"></div> `` <!-- Laisser es cotes AsciiMath pour automatiquement charger le package MathJax.InputJax.AsciiMath -->
+        </div>
+
+        <!-- Easyui Windows UNICODES_LIST-->
+        <div class="easyui-window" id="wUNICODES_LIST" title="&lt;span data-locate='UNICODES_LIST' class='rtl-title-withicon'>&lt;/span>" style="height:560px;width:580px" data-options="iconCls:'icon-codes',resizable:false,closed:true,modal:false,collapsible:false,minimizable:false,maximizable:false,closable:true">
+          <div style="margin-top:10px;margin-bottom:10px;margin-left:4px;">
+              <form action="#" method="post"><input class="easyui-combobox" id="unicodeChoise" name="unicodeChoise" value="-" style="width:345px;" /></form>
+          </div>
+          <div id="cUNICODES_LIST" style="float:left;width:350px;height:480px;overflow:auto;"></div><div id="cUNICODES_VALUES" style="float:right;width:170px;height:480px;overflow:auto;"></div>
+        </div>
+
+        <!-- Easyui Window LANGUAGE_LIST -->
+        <div class="easyui-window" id="wLANGUAGE_LIST" title="&lt;span data-locate='LANGUAGE_LIST' class='rtl-title-withicon'>&lt;/span>" style="height:450px;width:650px" data-options="iconCls:'icon-langressource',closed:true,modal:false,collapsible:false,minimizable:false,maximizable:false,closable:true">
+          <div id="tLANGUAGE_LIST" class="easyui-tabs" data-options="border:false,fit:true,plain:false">
+          </div>
+        </div>
+
+        <!-- Easyui Window INFORMATIONS -->
+        <div class="easyui-window" id="wINFORMATIONS" title="&lt;span data-locate='INFORMATIONS' class='rtl-title-withicon'>&lt;/span>" style="height:450px;width:600px" data-options="iconCls:'icon-info',closed:true,modal:false,collapsible:false,minimizable:false,maximizable:false,closable:true">
+          <div id="tINFORMATIONS" class="easyui-tabs" data-options="border:false,fit:true,plain:false">
+              <!--div title="&lt;span data-locate='THANKS'></span>" id="tTHANKS" style="padding:10px;" data-options="iconCls:'icon-credit',closable:false,cache:true,href:'information/tTHANKS.html'"></div-->
+              <div title="&lt;span data-locate='COPYRIGHT'>&lt;/span>" id="tCOPYRIGHT" style="padding:10px;" data-options="iconCls:'icon-copyright',closable:false,cache:true,href:'information/tCOPYRIGHT.html'"></div>
+              <div title="&lt;span data-locate='VERSION'>&lt;/span>" id="tVERSION" style="padding:10px;" data-options="iconCls:'icon-history',closable:false,cache:true,href:'information/tVERSION.html'"></div>
+              <div title="&lt;span data-locate='BUGS'>&lt;/span>" id="tBUGS" style="padding:10px;"  data-options="iconCls:'icon-bugs',closable:false,cache:true,href:'information/tBUGS.html'"></div>
+              <div title="&lt;span data-locate='EQUATION_SAMPLE'>&lt;/span>" id="tEQUATION" style="padding:10px;" data-options="iconCls:'icon-equation',closable:false,cache:true,href:'information/tEQUATION.html'"></div>
+          </div>
+        </div>
+    </body>
+</html>

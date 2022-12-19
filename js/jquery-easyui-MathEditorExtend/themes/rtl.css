@@ -1,0 +1,23 @@
+/*
+VisualMathEditor, (rtl.js) 
+Copyright © 2005-2013 David Grima, contact@equatheque.com under the terms of the GNU General Public License, version 3.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses.
+*/
+.tooltip-content {direction:ltr;}
+.tabs-title, .rtl-menu-item, .l-btn{font-weight: bold;}
+.rtl-menu-item{display:inline-block; width:150px;}
+.rtl-title-withicon{margin-right:25px; display:inline-block; float:right;}
+.rtl-title-with2icon{margin-right:42px;}
+.rtl-title-with3icon{margin-right:59px;}
+.rtl-title-with4icon{margin-right:76px;}
+.rtl-title-with5icon{margin-right:93px;}
+.rtl-align-right{text-align:right;}
+#PARAM_EDITION_SYNTAX{float:right; display:inline-block;}
+#PARAM_EDITION_ENCLOSE{float:left; display:inline-block;}
+#menu{float:right;}
+#tLANGUAGE_LIST ul{float:left;}
+#formEDITOR_PARAMETERS fieldset{text-align:right;}
+#HTML_TAG {text-align:left;}
+#mathVisualOutput {direction:rtl;text-align:right;}
